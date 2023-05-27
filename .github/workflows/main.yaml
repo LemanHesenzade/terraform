@@ -16,10 +16,31 @@ jobs:
     needs: build
     steps:
       - run: echo "This is a test step"
+  
+  
+  tflint:
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - uses: terraform-linters/setup-tflint@v1
+        name: Setup TFLint
+        with:
+          tflint_version: latest
+
+      - name: Run TFLint
+        run: tflint -f json aws > tflint-output.json
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: TFLint
+          path: tflint-output.json
+        if: always()                        # what is this for?
 
   integration:
     runs-on: ubuntu-20.04
-    needs: test
+    needs: tflint
     steps:
       - run: echo "This is an integration step"
       - run: exit 1
