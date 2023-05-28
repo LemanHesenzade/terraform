@@ -7,17 +7,24 @@ on:
 
 jobs:
   tfsec:
-    runs-on: ubuntu-20.04
+    name: tfsec sarif report
+    runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v2
+      - name: Clone repo
+        uses: actions/checkout@v2
 
-      - run: docker run --rm -v $(pwd):/src aquasec/tfsec /src -f json | tee tfsec-output.json
-
-      - uses: actions/upload-artifact@v2
+      - name: tfsec
+        uses: tfsec/tfsec-sarif-action@main
         with:
-          name: Tfsec
-          path: tfsec-output.json
-        if: always()  
+          sarif_file: tfsec.sarif         
+
+      - name: Upload SARIF file
+        uses: actions/upload-artifact@v2
+        with:
+          # Path to SARIF file relative to the root of the repository
+          sarif_file: tfsec.sarif    
+
 
           
   integration:
